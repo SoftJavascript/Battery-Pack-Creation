@@ -18,7 +18,7 @@
   "scripts": {
     "start": "react-scripts start",
     "dev": "react-scripts start && npx tailwindcss -i ./src/index.css -o ./src/App.css --watch",
-    "build": "npx tailwindcss build ./src/index.css -o ./src/App.css --minify && react-scripts build && serve -s build -l 3000",
+    "build": "npx tailwindcss build ./src/index.css -o ./src/App.css --minify && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
