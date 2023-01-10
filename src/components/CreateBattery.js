@@ -118,12 +118,6 @@ function CreateBattery() {
       setParallelsNotRounded(parallelsPack())
       const roundedParallels = Math.ceil(parallelsPack())
       
-      const capacityPack = () => {
-        if(parallelsPack() === 0){
-          return (cellType.capacity/1000)
-        }
-        return (parallelsPack() * (cellType.capacity/1000))
-      }
       
       const voltsPack = () => {
         return (cellType.volts * roundedSeries)
@@ -138,7 +132,14 @@ function CreateBattery() {
         }
         return (roundedSeries * roundedParallels)
       }
-
+      
+      const capacityPack = () => {
+        if(parallelsPack() === 0){
+          return (cellType.capacity/1000)
+        }
+        return ((roundedParallels) * (cellType.capacity/1000))
+      }
+      
       const weightPack = ((cellsPack() * cellType.weight)/1000)
       
       setPackBattery( {...packBattery, 
