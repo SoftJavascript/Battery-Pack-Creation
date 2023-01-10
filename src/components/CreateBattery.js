@@ -175,12 +175,12 @@ function CreateBattery() {
         },
       } = typeCell
 
-     console.log(typeCell.cellsData);
+    //  console.log(typeCell.cellsData);
 
 
-      // const listTypeCell = typeCell.map((typeCell, index) =>
-      // <li href="/#" className="block px-4 py-3 text-sm text-gray-600 capitalize transition-colors duration-200 transform dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white" key={index}>{typeCell}</li>
-      // )
+    //   const listTypeCell = typeCell.map((typeCell, index) =>
+    //   <li href="/#" className="block px-4 py-3 text-sm text-gray-600 capitalize transition-colors duration-200 transform dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white" key={index}>{typeCell}</li>
+    //   )
 
 
       return (
