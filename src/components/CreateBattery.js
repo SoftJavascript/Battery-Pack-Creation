@@ -21,7 +21,7 @@ function CreateBattery() {
 
   const initialStateCellType = {
     volts: 3.6,
-    capacity: 2600,
+    capacity: 3000,
     dischargeI: 36,
     cells: 1,
     weight: 48,
@@ -42,7 +42,7 @@ function CreateBattery() {
   const [packBattery , setPackBattery] = useState(initialStatePack)
   const [updateCalculation, setUpdateCalculation] = useState(true)
   const [updatePackCalc, setUpdatePackCalc] = useState(true)
-  const [ParallelsNotRounded, setParallelsNotRounded] = useState(0)
+  const [parallelsNotRounded, setParallelsNotRounded] = useState(0)
   const [show,setShow]=useState(false)
 
 
@@ -57,7 +57,7 @@ function CreateBattery() {
       18500: {
         NCR18650BE: {
           brand: "Panasonic",
-          volts: "3.7",
+          volts: "3.6",
           miniVolts: "3",
           maxVolts: "4.2",
           capacityMah: "3200",
@@ -72,7 +72,7 @@ function CreateBattery() {
       21700: {
         INR21700: {
           brand: "Samsung",
-          volts: "3.7",
+          volts: "3.6",
           miniVolts: "2.5",
           maxVolts: "4.2",
           capacityMah: "5000",
@@ -94,15 +94,18 @@ function CreateBattery() {
           
       if (newData.amperes === 0){
         let resultAmperes = newData.watts/newData.volts
-          setNewData({...newData, amperes: resultAmperes.toFixed(3)})
-          setUpdateCalculation(false)
-          
-        } else {
-          let resultWatts = newData.volts*newData.amperes
-          setNewData({...newData, watts: resultWatts.toFixed(2)})
-          setUpdateCalculation(false)
-        }
-      }  
+        setNewData({...newData, amperes: resultAmperes.toFixed(2)})
+      }
+      else {
+        let resultWatts = newData.volts*newData.amperes
+        setNewData({...newData, watts: resultWatts.toFixed(3)})
+      }
+
+      return  (
+        setUpdateCalculation(false),
+        setUpdatePackCalc(true)
+      )
+    }     
 
     if (updatePackCalc) {
 
@@ -110,10 +113,12 @@ function CreateBattery() {
       const roundedSeries = Math.ceil(seriesInPack)
       
       const parallelsPack = () => {
+        console.log(newData.amperes, updateCalculation);
         if (cellType.capacity >= newData.amperes*1000) {
           return 0
+        } else {
+          return (newData.amperes*newData.workingTime)/(cellType.capacity/1000)
         }
-        return ((newData.amperes*newData.workingTime)/(cellType.capacity/1000)).toFixed(2)
       }
       setParallelsNotRounded(parallelsPack())
       const roundedParallels = Math.ceil(parallelsPack())
@@ -126,9 +131,9 @@ function CreateBattery() {
       
       const cellsPack = () => {
         if (roundedParallels === 1){
-          return (seriesInPack*2)
+          return (roundedSeries*2)
         } else if (roundedParallels === 0){
-          return seriesInPack
+          return roundedSeries
         }
         return (roundedSeries * roundedParallels)
       }
@@ -143,7 +148,7 @@ function CreateBattery() {
       const weightPack = ((cellsPack() * cellType.weight)/1000)
       
       setPackBattery( {...packBattery, 
-        series: seriesInPack,
+        series: roundedSeries,
         parallels: roundedParallels,
         volts: voltsPack(),
         capacity: capacityPack(), 
@@ -223,33 +228,33 @@ function CreateBattery() {
   
 
     function BatteryPack() { 
-      return  (
-            <Fragment>
-              <div className="grid justify-items-center mt-10 sm:mt-20 sm:ml-7">
-                <span className='text-lg text-green-300 font-extrabold'><span className='text-2xl'>Pack Battery</span><br/>{packBattery.series}s{packBattery.parallels}p</span><br/><br/>
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 mx-auto">
-                  <div>
-                    <span className='text-lg text-green-300 font-extrabold'>{packBattery.series}</span>&emsp;<div className='inline-flex items-baseline>Cells'>Cells<span className='flex items-center'><FcChargeBattery/></span> Series</div>
-                  </div>
-                  <div>
-                    <span className='text-lg text-green-300 font-extrabold'>{packBattery.volts} V</span><div className="inline-flex items-baseline my-auto">&emsp;Volts&emsp;<span className='flex items-center'><FcFlashOn /></span></div><br/>
-                  </div>
-                  <div>
-                    <span className='text-lg text-green-300 font-extrabold'>{Math.round(packBattery.parallels)}</span>&emsp;<span className='flex items-center inline-flex'>Cells<FcChargeBattery/></span><span> Parallels</span>&emsp;<span className='text-lg text-green-300 font-extrabold'>&emsp;({ParallelsNotRounded})</span>
-                  </div>
-                  <div>
-                    <span className='text-lg text-green-300 font-extrabold'>{packBattery.cells}</span><span>&emsp;Quantity Cells</span><br/>
-                  </div>
-                  <div>
-                    <span className='text-lg text-green-300 font-extrabold'>{packBattery.capacity.toFixed(2)}</span><div className='inline-flex items-baseline'>&emsp;Capacity &emsp;<span className=' my-auto'><FcFlashAuto /></span></div><br/>
-                  </div>
-                  <div>
-                    <span className='text-lg text-green-300 font-extrabold'>{packBattery.weight} Kg</span><span>&emsp;Weight</span><br/>
+        return  (
+              <Fragment>
+                <div className="grid justify-items-center mt-10 sm:mt-20 sm:ml-7">
+                  <span className='text-lg text-green-300 font-extrabold'><span className='text-2xl'>Pack Battery</span><br/>{packBattery.series}s{packBattery.parallels}p</span><br/><br/>
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 mx-auto">
+                    <div>
+                      <span className='text-lg text-green-300 font-extrabold'>{packBattery.series}</span>&emsp;<div className='inline-flex items-baseline>Cells'>Cells<span className='flex items-center'><FcChargeBattery/></span> Series</div>
+                    </div>
+                    <div>
+                      <span className='text-lg text-green-300 font-extrabold'>{packBattery.volts.toFixed(2)} V</span><div className="inline-flex items-baseline my-auto">&emsp;Volts&emsp;<span className='flex items-center'><FcFlashOn /></span></div><br/>
+                    </div>
+                    <div>
+                      <span className='text-lg text-green-300 font-extrabold'>{Math.ceil(parallelsNotRounded)}</span>&emsp;<span className='items-center inline-flex'>Cells<FcChargeBattery/></span><span> Parallels</span>&emsp;<span className='text-lg text-green-300 font-extrabold'>&emsp;{parallelsNotRounded.toFixed(2)}</span>
+                    </div>
+                    <div>
+                      <span className='text-lg text-green-300 font-extrabold'>{packBattery.cells}</span><span>&emsp;Quantity Cells</span><br/>
+                    </div>
+                    <div>
+                      <span className='text-lg text-green-300 font-extrabold'>{packBattery.capacity.toFixed(2)}</span><div className='inline-flex items-baseline'>&emsp;Capacity &emsp;<span className=' my-auto'><FcFlashAuto /></span></div><br/>
+                    </div>
+                    <div>
+                      <span className='text-lg text-green-300 font-extrabold'>{packBattery.weight} Kg</span><span>&emsp;Weight</span><br/>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Fragment>
-      )
+              </Fragment>
+        )
     }     
 
 
@@ -273,7 +278,10 @@ function CreateBattery() {
                   pattern="[0-9]+([\.][0-9]{1,2})?"
                   decimalSeparator="."
                   value={newData.volts}
-                  onChange={e => {setNewData({...newData, volts: e.target.value*1, amperes: 0}); setUpdateCalculation(true); setUpdatePackCalc(true)}}
+                  onChange={e => {
+                      setNewData({...newData, volts: e.target.value*1, amperes: 0}) 
+                      setUpdateCalculation(true)
+                    }} 
                 /><br/>
                 <label className='m-4 inline-flex items-baseline'>Watts&emsp;<span className='flex items-center my-auto'><FcElectricity/></span></label><br/>
                 <NumericFormat 
@@ -283,7 +291,10 @@ function CreateBattery() {
                   min="0.01"
                   pattern="[0-9]+([\.][0-9]{1,2})?"
                   value={newData.watts}
-                  onChange={e => {setNewData({...newData, watts: e.target.value*1, amperes: 0}); setUpdateCalculation(true); setUpdatePackCalc(true)}}
+                  onChange={e => {
+                    setNewData({...newData, watts: e.target.value*1, amperes: 0}) 
+                    setUpdateCalculation(true)
+                  }}
                 /><br/>
                 <label className='m-4'>Amperes</label><br/>
                 <NumericFormat 
@@ -293,7 +304,10 @@ function CreateBattery() {
                   min="0.001" 
                   pattern="[0-9]+([\.][0-9]{1,2})?"
                   value={newData.amperes}
-                  onChange={e => {setNewData({...newData, amperes: e.target.value*1, watts: 0}); setUpdateCalculation(true); setUpdatePackCalc(true)}}
+                  onChange={e => {
+                    setNewData({...newData, amperes: e.target.value*1, watts: 0}) 
+                    setUpdateCalculation(true)
+                  }}
                 /><br/>
                 <label className='m-4 inline-flex items-baseline'>Working Time in Hours&emsp;<span className='flex items-center my-auto'><FcElectricalSensor/></span></label><br/>
                 <NumericFormat 
@@ -303,7 +317,10 @@ function CreateBattery() {
                   min="0.01" 
                   pattern="[0-9]+([\.][0-9]{1,2})?"
                   value={newData.workingTime}
-                  onChange={e => {setNewData({...newData, workingTime: e.target.value*1, watts: 0}); setUpdateCalculation(true); setUpdatePackCalc(true)}}
+                  onChange={e => {
+                    setNewData({...newData, workingTime: e.target.value*1, watts: 0})
+                    setUpdateCalculation(true)
+                  }}
                 /><br/>
               </div>
             </div>
